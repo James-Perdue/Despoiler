@@ -188,6 +188,11 @@ bool Planner::BuildPlans(TMap<FString, bool> GoalState, TArray<UAction*> Possibl
 
 	for (UAction* Action : PossibleActions)
 	{
+		if (Action == PlanTree->NodeAction)
+		{
+			continue;
+		}
+
 		bool actionUsable = false;
 		if (Action->isValid(actor) != true) continue;
 		TMap<FString, bool> GoalCopyInner = GoalCopy;
@@ -212,6 +217,7 @@ bool Planner::BuildPlans(TMap<FString, bool> GoalState, TArray<UAction*> Possibl
 FPlan Planner::FindBestPlan(FPlanNode* PlanTree)
 {
 	FPlan bestPlan = FPlan();
+	bestPlan.Cost = 1000000;
 	TArray<FPlan> plans = TransformPlanTreeToArray(PlanTree);
 	for(FPlan plan : plans)
 	{

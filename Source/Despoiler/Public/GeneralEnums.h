@@ -17,3 +17,11 @@ enum class ETeam : uint8
 	Attacker UMETA(DisplayName = "Attacker"),
 	Defender UMETA(DisplayName = "Defender")
 };
+
+UENUM(BlueprintType)
+enum class EAttackState : uint8
+{
+	Idle UMETA(DisplayName = "Starting"),
+	Ready UMETA(DisplayName = "Ready"),
+	Cooldown UMETA(DisplayName = "CoolDown"),
+};

@@ -16,6 +16,10 @@ UTP_CharacterBlackboard::UTP_CharacterBlackboard()
 
 void UTP_CharacterBlackboard::SetCommonLocalState(TMap<FString, bool>* LocalState)
 {
+	// General reset states (i.e. repeatable goals)
+	LocalState->Emplace("HitTarget", false);
+	//LocalState->Emplace("TargetingObjective", false);
+	// Target-specific goal states
 	if (CurrentTarget != nullptr)
 	{
 		bool atTarget = false;
@@ -23,13 +27,7 @@ void UTP_CharacterBlackboard::SetCommonLocalState(TMap<FString, bool>* LocalStat
 		{
 			atTarget = true;
 		}
-		/*if (*LocalState->Find("AtTarget") == false) 
-		{
-			if (FVector::Distance(this->GetOwner()->GetActorLocation(), CurrentTarget->GetActorLocation()) <= MinDistance)
-			{
-				LocalState->Emplace("AtTarget", true);
-			}
-		}*/
+
 		LocalState->Emplace("AtTarget", atTarget);
 	}
 	else
@@ -37,6 +35,7 @@ void UTP_CharacterBlackboard::SetCommonLocalState(TMap<FString, bool>* LocalStat
 		LocalState->Emplace("HasTarget", false);
 		LocalState->Emplace("AtTarget", false);
 	}
+
 }
 
 // Called when the game starts
@@ -45,21 +44,7 @@ void UTP_CharacterBlackboard::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	ADespoilerGameMode* mode = Cast<ADespoilerGameMode>(this->GetOwner()->GetWorld()->GetAuthGameMode());
-	if(TeamAssignment == ETeam::Attacker)
-	{
-		mode->Teams[ETeam::Attacker]->AddMember(this->GetOwner());
-		MyTeam = mode->Teams[ETeam::Attacker];
-		OpposingTeam = mode->Teams[ETeam::Defender];
-
-	}
-	else 
-	{
-		mode->Teams[ETeam::Defender]->AddMember(this->GetOwner());
-		MyTeam = mode->Teams[ETeam::Defender];
-		OpposingTeam = mode->Teams[ETeam::Attacker];
-
-	}
+	
 }
 
 

@@ -33,6 +33,24 @@ void ATeam::AddMember(AActor* member)
 	Members.Add(member);
 }
 
+void ATeam::RemoveMember(AActor* member)
+{
+	if (member != nullptr)
+	{
+		TArray<AActor*> memberCopy = Members;
+		if (memberCopy.Contains(member))
+		{
+			memberCopy.Remove(member);
+			Members = memberCopy;
+		}
+	}
+}
+
+void ATeam::SetObjective(AActor* actor)
+{
+	CurrentObjective = actor;
+}
+
 // Called when the game starts or when spawned
 void ATeam::BeginPlay()
 {

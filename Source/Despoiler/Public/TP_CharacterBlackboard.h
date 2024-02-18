@@ -6,11 +6,12 @@
 #include "Components/ActorComponent.h"
 #include <Despoiler/DespoilerGameMode.h>
 #include "GeneralEnums.h"
+#include "TP_TeamDetails.h"
 #include "TP_CharacterBlackboard.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class DESPOILER_API UTP_CharacterBlackboard : public UActorComponent
+class DESPOILER_API UTP_CharacterBlackboard : public UTP_TeamDetails
 {
 	GENERATED_BODY()
 
@@ -21,17 +22,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	AActor* CurrentTarget;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
-	ETeam TeamAssignment;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Planner")
 	float MinDistance;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Planner")
-	ATeam* MyTeam;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Planner")
-	ATeam* OpposingTeam;
 
 	void SetCommonLocalState(TMap<FString, bool>* LocalState);
 

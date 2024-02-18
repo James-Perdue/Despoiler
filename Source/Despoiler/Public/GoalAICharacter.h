@@ -5,10 +5,13 @@
 #include "CoreMinimal.h"
 #include <TP_CharacterBlackboard.h>
 #include "GameFramework/Character.h"
+#include "IDamageable.h"
+#include <CharacterCombatComponent.h>
+#include <GeneralCharacter.h>
 #include "GoalAICharacter.generated.h"
 
 UCLASS(ClassGroup = (Custom))
-class DESPOILER_API AGoalAICharacter : public ACharacter
+class DESPOILER_API AGoalAICharacter : public ACharacter, public IDamageable, public IGeneralCharacter
 {
 	GENERATED_BODY()
 
@@ -16,12 +19,17 @@ public:
 	// Sets default values for this character's properties
 	AGoalAICharacter();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Planner")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Planner)
 	UTP_CharacterBlackboard* Blackboard;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
+	int MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
+	int Health;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Planner)
+	UCharacterCombatComponent* CombatComponent;
 
 public:	
 	// Called every frame
@@ -30,4 +38,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void DamageEntity_Implementation(FDamageInfo DamageInfo) override;
+
+	virtual void Die_Implementation() override;
+
+	virtual EActionStatus  AttackTarget_Implementation() override;
+
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 };

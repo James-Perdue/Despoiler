@@ -16,7 +16,8 @@ public:
 	// Sets default values for this actor's properties
 	ATeam();
 
-	AActor* GetOverallGoal() { return OverallGoal; }
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	AActor* GetObjective() { return CurrentObjective; }
 
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	TArray<AActor*> GetMembers() { return Members; }
@@ -26,6 +27,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	void AddMember(AActor* member);
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void RemoveMember(AActor* member);
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void SetObjective(AActor* actor);
+
 	ETeam Team;
 
 protected:
@@ -34,8 +42,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	TArray<AActor*> Members;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
-	AActor* OverallGoal;
+	AActor* CurrentObjective;
 
 public:	
 	// Called every frame

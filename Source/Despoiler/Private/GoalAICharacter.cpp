@@ -16,6 +16,8 @@ void AGoalAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Blackboard = this->FindComponentByClass<UTP_CharacterBlackboard>();
+	CombatComponent = this->FindComponentByClass<UCharacterCombatComponent>();
+	Health = MaxHealth;
 }
 
 // Called every frame
@@ -30,5 +32,37 @@ void AGoalAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AGoalAICharacter::DamageEntity_Implementation(FDamageInfo DamageInfo)
+{
+	Health -= DamageInfo.Damage;
+	if (Health <= 0)
+	{
+		Execute_Die(this);
+	}
+}
+
+void AGoalAICharacter::Die_Implementation()
+{
+	Blackboard->MyTeam->RemoveMember(this);
+
+	this->Destroy();
+}
+
+EActionStatus AGoalAICharacter::AttackTarget_Implementation()
+{
+	if (CombatComponent == nullptr || Blackboard == nullptr)
+	{
+		return EActionStatus::Failed;
+	}
+	AActor* target = Blackboard->CurrentTarget;
+	if (target == nullptr)
+	{
+		return EActionStatus::Failed;
+	}
+
+	EActionStatus combatResult = CombatComponent->TryAttack(target);
+	return combatResult;
 }
 
