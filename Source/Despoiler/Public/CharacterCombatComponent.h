@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include <GeneralEnums.h>
 #include <IDamageable.h>
+#include <TP_CharacterBlackboard.h>
 #include "CharacterCombatComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -29,21 +30,46 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
 	float AttackCooldownTime;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	float DefendCooldownTime;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	float AttackTimeRange;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	ECombatState AttackState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	ECombatState DefendState;
+
 protected:
 
 	FTimerHandle AttackWarmupTimer;
 	FTimerHandle AttackCooldownTimer;
 
-	EAttackState attackState;
+	FTimerHandle DefendCooldownTimer;
+
+	AActor* warmupTarget;
+	AActor* localTarget;
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	void EndCooldown() { attackState = EAttackState::Idle; }
-	void EndWarmup() { attackState = EAttackState::Ready; }
+	void EndCooldown(ECombatState* state) { *state = ECombatState::Idle; }
+	void EndWarmup(ECombatState* state) { *state = ECombatState::Ready; }
+
+	UTP_CharacterBlackboard* CharacterBlackboard;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	EActionStatus TryAttack(AActor* target);
+
+	EActionStatus TryDefend(AActor* target);
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void HitTarget();
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void Defend();
 };

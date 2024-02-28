@@ -20,7 +20,11 @@ void UCharacterCombatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	attackState = EAttackState::Idle;
+	AttackState = ECombatState::Idle;
+	if (UTP_CharacterBlackboard* blackboard = this->GetOwner()->FindComponentByClass<UTP_CharacterBlackboard>())
+	{
+		CharacterBlackboard = blackboard;
+	}
 }
 
 
@@ -34,44 +38,122 @@ void UCharacterCombatComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 EActionStatus UCharacterCombatComponent::TryAttack(AActor* target)
 {
-	//this->GetOwner()->GetWorld()->GetTimerManager().SetTimer(AssignTeamTimer, this, &UTP_TeamDetails::AssignTeam, 0.1, true);
-	UWorld* world = this->GetOwner()->GetWorld();
-	switch (attackState)
+	if (target == nullptr)
 	{
-		case EAttackState::Idle:
+		return EActionStatus::Failed;
+	}
+
+	UWorld* world = this->GetOwner()->GetWorld();
+	switch (AttackState)
+	{
+		case ECombatState::Idle:
 			if (!world->GetTimerManager().IsTimerActive(AttackWarmupTimer))
 			{
-				world->GetTimerManager().SetTimer(AttackWarmupTimer, this, &UCharacterCombatComponent::EndWarmup, AttackWarmupTime, false);
+				float timeWithRange = AttackWarmupTime + FMath::RandRange(-1 * AttackTimeRange, AttackTimeRange);
+				world->GetTimerManager().SetTimer(AttackWarmupTimer, [this]() { EndWarmup(&AttackState); }, timeWithRange, false);
+				warmupTarget = target;
 			}
 			break;
-		case EAttackState::Ready:
+		case ECombatState::Ready:
 		{
-			float distanceToTarget = FVector::Dist(this->GetOwner()->GetActorLocation(), target->GetActorLocation());
-			UE_LOG(LogTemp, Log, TEXT("Distance to Target: %.2f"), distanceToTarget);
-			//Attack
-			if (distanceToTarget <= AttackRange)
+			//If target has changed between warmup and swing, reset attack state
+			if (target != warmupTarget) {
+				AttackState = ECombatState::Idle;
+				break;
+			}
+			
+			if (CharacterBlackboard->AgentState != EAgentState::Attacking)
 			{
-				//Hit Target
-				FDamageInfo damageInfo = FDamageInfo();
-				damageInfo.Damage = AttackDamage;
-				damageInfo.DamagingActor = this->GetOwner();
+				localTarget = target;
+				CharacterBlackboard->SetAgentState(EAgentState::Attacking);
+			}
 
-				IDamageable* damageTarget = Cast<IDamageable>(target);
-				damageTarget->Execute_DamageEntity(target, damageInfo);
-			}
-			if (!world->GetTimerManager().IsTimerActive(AttackCooldownTimer))
-			{
-				world->GetTimerManager().SetTimer(AttackCooldownTimer, this, &UCharacterCombatComponent::EndCooldown, AttackCooldownTime, false);
-			}
-			attackState = EAttackState::Cooldown;
-			return EActionStatus::Completed;
+			return EActionStatus::Running;
 		}
-		case EAttackState::Cooldown:
-			break;
+		case ECombatState::Cooldown:
+			return EActionStatus::Completed;
 		default:
 			return EActionStatus::Failed;
 	}
 
 	return EActionStatus::Running;
+}
+
+EActionStatus UCharacterCombatComponent::TryDefend(AActor* target)
+{
+	if (target == nullptr)
+	{
+		return EActionStatus::Failed;
+	}
+
+	switch (DefendState)
+	{
+		case ECombatState::Cooldown:
+			return EActionStatus::Failed;
+		default:
+			CharacterBlackboard->SetAgentState(EAgentState::Defending);
+	}
+	return EActionStatus::Running;
+}
+
+void UCharacterCombatComponent::HitTarget()
+{
+	if (localTarget == nullptr)
+	{
+		return;
+	}
+
+	UWorld* world = this->GetOwner()->GetWorld();
+	float distanceToTarget = FVector::Dist(this->GetOwner()->GetActorLocation(), localTarget->GetActorLocation());
+	//UE_LOG(LogTemp, Log, TEXT("Distance to Target: %.2f"), distanceToTarget);
+	//Attack
+
+	if (distanceToTarget <= AttackRange)
+	{
+		//Hit Target
+		FDamageInfo damageInfo = FDamageInfo();
+		damageInfo.Damage = AttackDamage;
+		damageInfo.DamagingActor = this->GetOwner();
+		bool blocked = false;
+		if (localTarget == nullptr)
+		{
+			return;
+		}
+		if (UTP_CharacterBlackboard* blackboard = localTarget->FindComponentByClass<UTP_CharacterBlackboard>())
+		{
+			if (blackboard->AgentState == EAgentState::Defending)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Blocked!"));
+				blocked = true;
+			}
+		}
+		if (!blocked)
+		{
+			if (IDamageable* damageTarget = Cast<IDamageable>(localTarget)) {
+				UE_LOG(LogTemp, Log, TEXT("Hit!"));
+				damageTarget->Execute_DamageEntity(localTarget, damageInfo);
+			}
+		}
+		
+		
+	}
+
+	if (!world->GetTimerManager().IsTimerActive(AttackCooldownTimer))
+	{
+		world->GetTimerManager().SetTimer(AttackCooldownTimer, [this]() { EndCooldown(&AttackState); }, AttackCooldownTime, false);
+	}
+
+	CharacterBlackboard->SetAgentState(EAgentState::Idle);
+	AttackState = ECombatState::Cooldown;
+}
+
+void UCharacterCombatComponent::Defend()
+{
+	if (!this->GetWorld()->GetTimerManager().IsTimerActive(DefendCooldownTimer))
+	{
+		this->GetWorld()->GetTimerManager().SetTimer(DefendCooldownTimer, [this]() { EndCooldown(&DefendState); }, DefendCooldownTime, false);
+	}
+	CharacterBlackboard->SetAgentState(EAgentState::Idle);
+	DefendState = ECombatState::Cooldown;
 }
 

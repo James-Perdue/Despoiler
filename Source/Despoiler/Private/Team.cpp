@@ -13,19 +13,7 @@ ATeam::ATeam()
 
 AActor* ATeam::GetClosestMember(FVector location)
 {
-	AActor* closestMember = nullptr;
-	float closestDistance = 10000000000;
-	for (AActor* member : Members)
-	{
-		if (member == nullptr) continue;
-
-		if (float distance = FVector::Dist(location, member->GetActorLocation()) < closestDistance)
-		{
-			closestMember = member;
-			closestDistance = distance;
-		}
-	}
-	return closestMember;
+	return UGeneralUtil::GetClosestActor(location, Members);
 }
 
 void ATeam::AddMember(AActor* member)
@@ -42,6 +30,24 @@ void ATeam::RemoveMember(AActor* member)
 		{
 			memberCopy.Remove(member);
 			Members = memberCopy;
+		}
+	}
+}
+
+void ATeam::AddSquad(ASquad* squad)
+{
+	Squads.Add(squad);
+}
+
+void ATeam::RemoveSquad(ASquad* squad)
+{
+	if (squad != nullptr)
+	{
+		TArray<ASquad*> squadCopy = Squads;
+		if (squadCopy.Contains(squad))
+		{
+			squadCopy.Remove(squad);
+			Squads = squadCopy;
 		}
 	}
 }

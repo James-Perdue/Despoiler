@@ -20,7 +20,13 @@ public:
 	AGoalAICharacter();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Planner)
-	UTP_CharacterBlackboard* Blackboard;
+	class UTP_CharacterBlackboard* Blackboard;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Planner)
+	class UCharacterCombatComponent* CombatComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Planner)
+	class UTP_PlanningAgent* PlanningAgent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	int MaxHealth;
@@ -28,8 +34,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	int Health;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Planner)
-	UCharacterCombatComponent* CombatComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
+	bool Alive = true;
+
+	
 
 public:	
 	// Called every frame
@@ -43,6 +51,12 @@ public:
 	virtual void Die_Implementation() override;
 
 	virtual EActionStatus  AttackTarget_Implementation() override;
+
+	virtual EActionStatus  Defend_Implementation() override;
+
+	virtual EActionStatus  Target_Implementation() override;
+
+
 
 
 protected:

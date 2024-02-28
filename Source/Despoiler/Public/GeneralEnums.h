@@ -19,9 +19,30 @@ enum class ETeam : uint8
 };
 
 UENUM(BlueprintType)
-enum class EAttackState : uint8
+enum class ECombatState : uint8
 {
 	Idle UMETA(DisplayName = "Starting"),
 	Ready UMETA(DisplayName = "Ready"),
 	Cooldown UMETA(DisplayName = "CoolDown"),
+};
+
+UENUM(BlueprintType)
+enum class EAgentState : uint8
+{
+	Idle UMETA(DisplayName = "Idle"),
+	Attacking UMETA(DisplayName = "Attacking"),
+	Defending UMETA(DisplayName = "Defending"),
+	Capturing UMETA(DisplayName = "Capturing"),
+	Stunned UMETA(DisplayName = "Stunned")
+};
+
+UENUM(BlueprintType)
+enum class ESquadState : uint8
+{
+	Idle UMETA(DisplayName = "Idle"),
+	Attack UMETA(DisplayName = "Attack"),
+	HoldPosition UMETA(DisplayName = "HoldPosition"),
+	Capture UMETA(DisplayName = "Capture"),
+	Free UMETA(DisplayName = "Free"),
+	Retreat UMETA(DisplayName = "Retreat")
 };

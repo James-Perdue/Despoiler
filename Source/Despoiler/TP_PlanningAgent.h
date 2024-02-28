@@ -9,8 +9,7 @@
 #include "Action.h"
 #include "Goal.h"
 #include "Containers/Map.h"
-#include <GoalAICharacter.h>
-#include <TP_CharacterBlackboard.h>
+#include <BlackboardBaseComponent.h>
 #include "TP_PlanningAgent.generated.h"
 
 /**
@@ -137,19 +136,31 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Planner")
 	float CheckGoalFrequency = .25f;
 
+	UFUNCTION(BlueprintCallable, Category = "Planner")
+	void SetRefreshRate(float rate);
+
+	UFUNCTION(BlueprintCallable, Category = "Planner")
+	void ResetRefreshRate();
+
+	UFUNCTION(BlueprintCallable, Category = "Planner")
+	void StopPlanning();
+
+	UFUNCTION(BlueprintCallable, Category = "Planner")
+	void StartPlanning();
+
 
 	UTP_PlanningAgent();
 	UGoal* GetCurrentGoal() { return CurrentGoal; }
 	UGoal* GetBestGoal();
 
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	UGoal* CurrentGoal;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	FPlan CurrentPlan;
 
 	Planner Planner;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TMap<FString, bool> LocalState;
 
 	FTimerHandle CheckGoalTimer;
@@ -170,15 +181,3 @@ private:
 	int CurrentPlanIndex = 0;
 	bool isDebug = false;
 };
-//class DESPOILER_API BaseWorldState
-//{
-//public:
-//	FName Name;
-//
-//	double Value;
-//
-//	bool GetBoolValue() const { if (Value > 0) return true; return false; }
-//
-//	int GetIntValue() const { return FMath::Floor(Value); }
-//
-//};

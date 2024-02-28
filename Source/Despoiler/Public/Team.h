@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <GeneralEnums.h>
+#include <GeneralUtil.h>
 #include "Team.generated.h"
 
 UCLASS(ClassGroup = (Custom))
@@ -22,6 +23,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	TArray<AActor*> GetMembers() { return Members; }
 
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	TArray<ASquad*> GetSquads() { return Squads; }
+
 	UFUNCTION( BlueprintCallable, Category = "GOAP")
 	AActor* GetClosestMember(FVector location);
 
@@ -30,6 +34,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	void RemoveMember(AActor* member);
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void AddSquad(ASquad* squad);
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void RemoveSquad(ASquad* squad);
 
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	void SetObjective(AActor* actor);
@@ -42,6 +52,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	TArray<AActor*> Members;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
+	TArray<ASquad*> Squads;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	AActor* CurrentObjective;

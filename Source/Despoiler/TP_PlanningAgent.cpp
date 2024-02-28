@@ -3,6 +3,28 @@
 
 #include "TP_PlanningAgent.h"
 
+void UTP_PlanningAgent::SetRefreshRate(float rate)
+{
+	GetWorld()->GetTimerManager().SetTimer(CheckGoalTimer, this, &UTP_PlanningAgent::CheckGoal, CheckGoalFrequency, true, -1);
+}
+
+void UTP_PlanningAgent::ResetRefreshRate()
+{
+	SetRefreshRate(CheckGoalFrequency);
+}
+
+void UTP_PlanningAgent::StopPlanning()
+{
+	PrimaryComponentTick.SetTickFunctionEnable(false);
+	GetWorld()->GetTimerManager().ClearTimer(CheckGoalTimer);
+}
+
+void UTP_PlanningAgent::StartPlanning()
+{
+	PrimaryComponentTick.SetTickFunctionEnable(true);
+	ResetRefreshRate();
+}
+
 UTP_PlanningAgent::UTP_PlanningAgent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -25,7 +47,7 @@ void UTP_PlanningAgent::BeginPlay()
 	{
 		ActionObjects.Add(NewObject<UAction>(this, action));
 	}
-	GetWorld()->GetTimerManager().SetTimer(CheckGoalTimer, this,  &UTP_PlanningAgent::CheckGoal, CheckGoalFrequency, true, -1);
+	ResetRefreshRate();
 
 	CurrentPlanIndex = 0;
 }
@@ -64,20 +86,18 @@ void UTP_PlanningAgent::CheckGoal()
 		if (CurrentGoal != nullptr) {
 			FetchPlan();
 		}
-		//Get New Plan
-		
 	}
 }
 
 void UTP_PlanningAgent::FetchPlan()
 {
-	if (AGoalAICharacter* character = Cast<AGoalAICharacter>(this->GetOwner()) )
+	if (UBlackboardBaseComponent* blackboard = this->GetOwner()->FindComponentByClass<UBlackboardBaseComponent>() )
 	{
 		if (isDebug) {
 			UE_LOG(LogTemp, Log, TEXT("Updating state and finding plan"));
 		}
 
-		character->Blackboard->SetCommonLocalState(&this->LocalState);
+		blackboard->SetCommonLocalState(&this->LocalState);
 		CurrentPlan = Planner::GetPlan(LocalState, CurrentGoal->GetDesiredState(), ActionObjects, this->GetOwner());
 		CurrentPlanIndex = 0;
 	}
@@ -128,6 +148,11 @@ void UTP_PlanningAgent::FollowPlan(float DeltaTime)
 			UE_LOG(LogTemp, Log, TEXT("Plan complete"));
 		}
 		CurrentPlan.PlanActions.Empty();
+		return;
+	}
+	if (GOAPUtil::StateSatisfiesAll(LocalState, CurrentPlan.PlanActions[CurrentPlanIndex]->GetEffectState()))
+	{
+		CurrentPlanIndex++;
 		return;
 	}
 
@@ -222,7 +247,7 @@ FPlan Planner::FindBestPlan(FPlanNode* PlanTree)
 	for(FPlan plan : plans)
 	{
 		//print plan
-		PrintPlan(plan);
+		//PrintPlan(plan);
 		if (bestPlan.Cost > plan.Cost) 
 		{
 			bestPlan = plan;

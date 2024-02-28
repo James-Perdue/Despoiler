@@ -25,4 +25,10 @@ class DESPOILER_API IGeneralCharacter
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = AI)
 	EActionStatus AttackTarget();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = AI)
+	EActionStatus Defend();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = AI)
+	EActionStatus Target();
 };
