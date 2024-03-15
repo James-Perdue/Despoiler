@@ -22,6 +22,11 @@ AActor* UGeneralUtil::GetClosestActor(FVector location, TArray<AActor*> actors)
 	return closestActor;
 }
 
+FVector UGeneralUtil::GetClosestPoint(FVector location, TArray<FVector> points)
+{
+	return FVector();
+}
+
 bool UGeneralUtil::IsSquadStateEqual(ASquad* squad, ESquadState goalState)
 {
 	if (squad->SquadBlackboard != nullptr)

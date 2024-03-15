@@ -21,5 +21,8 @@ public:
 	static AActor* GetClosestActor(FVector location, TArray<AActor*> actors);
 
 	UFUNCTION(BlueprintCallable, Category = "Util")
+	static FVector GetClosestPoint(FVector location, TArray<FVector> points);
+
+	UFUNCTION(BlueprintCallable, Category = "Util")
 	static bool IsSquadStateEqual(ASquad* squad, ESquadState goalState);
 };

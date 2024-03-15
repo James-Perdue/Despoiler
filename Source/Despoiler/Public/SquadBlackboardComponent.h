@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include <BlackboardBaseComponent.h>
+#include "Logging/StructuredLog.h"
 #include "SquadBlackboardComponent.generated.h"
 // Forward Declarations:
 class AGoalAICharacter;
@@ -28,10 +29,33 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	TArray<AGoalAICharacter*> Members;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
+	EFormation Formation;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
+	float FormationSpacing;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
+	int FormationWidth;
+
+	UPROPERTY(VisibleAnywhere, Category = "Formation")
+	TMap<AGoalAICharacter*, FVector> FormationMap;
+
+	UPROPERTY(VisibleAnywhere, Category = "Formation")
+	AGoalAICharacter* Leader;
+
+	FTimerHandle UpdateFormationTimer;
+
 	virtual void SetCommonLocalState(TMap<FString, bool>* LocalState) override; 
 
-	UFUNCTION(BlueprintCallable, Category = Planner)
+	UFUNCTION(BlueprintCallable, Category = "Planner")
 	void RemoveMember(AGoalAICharacter* member);
+
+	UFUNCTION(BlueprintCallable, Category = "Planner")
+	void SetFormation();
+
+	UFUNCTION(BlueprintCallable, Category = "Planner")
+	FVector FetchFormationLocation(AGoalAICharacter* member);
 
 protected:
 	// Called when the game starts

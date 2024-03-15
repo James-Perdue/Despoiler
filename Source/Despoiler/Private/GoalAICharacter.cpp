@@ -3,6 +3,8 @@
 
 #include "GoalAICharacter.h"
 #include <Kismet/KismetMathLibrary.h>
+#include "Logging/StructuredLog.h"
+#include <AIController.h>
 
 // Sets default values
 AGoalAICharacter::AGoalAICharacter()
@@ -31,13 +33,6 @@ void AGoalAICharacter::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void AGoalAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
 void AGoalAICharacter::DamageEntity_Implementation(FDamageInfo DamageInfo)
 {
 	Health -= DamageInfo.Damage;
@@ -49,16 +44,18 @@ void AGoalAICharacter::DamageEntity_Implementation(FDamageInfo DamageInfo)
 
 void AGoalAICharacter::Die_Implementation()
 {
+	//TODO: Change these to be delegates on team and squad respectively
+	Alive = false;
+
 	Blackboard->MyTeam->RemoveMember(this);
 	Blackboard->Squad->SquadBlackboard->RemoveMember(this);
 	if (PlanningAgent != nullptr)
 	{
 		PlanningAgent->StopPlanning();
 	}
-	Alive = false;
 	this->GetMesh()->SetCollisionProfileName("Ragdoll");
 	this->GetMesh()->SetSimulatePhysics(true);
-	this->SetLifeSpan(2);
+	this->SetLifeSpan(4);
 }
 
 EActionStatus AGoalAICharacter::AttackTarget_Implementation()
@@ -121,6 +118,39 @@ EActionStatus AGoalAICharacter::Target_Implementation()
 	}
 
 	Blackboard->CurrentTarget = target;
+	return EActionStatus::Completed;
+}
+
+EActionStatus AGoalAICharacter::MoveTo_Implementation(FVector targetLocation, float minDistance, bool bStopOnOverlap)
+{
+	if (Blackboard == nullptr || GetController() == nullptr)
+	{
+		return EActionStatus::Failed;
+	}
+	AAIController* controller = Cast<AAIController>(GetController());
+	if (controller == nullptr)
+	{
+		return EActionStatus::Failed;
+	}
+	//Still too far
+	double dist = FVector::Dist(this->GetActorLocation(), targetLocation);
+	//UE_LOGFMT(LogTemp, Log, "Distance to goal: {1}, minDistance {2}. Final Location: {3}", dist, minDistance, targetLocation.ToString());
+
+	if (!FMath::IsNearlyEqual(dist, minDistance, .0005))
+	{
+		EPathFollowingRequestResult::Type result = controller->MoveToLocation(targetLocation, minDistance, bStopOnOverlap);
+
+		if (result == 0)
+		{
+			//Failed
+			return EActionStatus::Failed;
+		}
+		if (result == 2)
+		{
+			return EActionStatus::Running;
+		}
+	}
+
 	return EActionStatus::Completed;
 }
 

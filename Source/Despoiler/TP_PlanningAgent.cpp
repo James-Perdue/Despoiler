@@ -5,7 +5,7 @@
 
 void UTP_PlanningAgent::SetRefreshRate(float rate)
 {
-	GetWorld()->GetTimerManager().SetTimer(CheckGoalTimer, this, &UTP_PlanningAgent::CheckGoal, CheckGoalFrequency, true, -1);
+	GetWorld()->GetTimerManager().SetTimer(CheckGoalTimer, this, &UTP_PlanningAgent::CheckGoal, rate, true, -1);
 }
 
 void UTP_PlanningAgent::ResetRefreshRate()
@@ -30,8 +30,6 @@ UTP_PlanningAgent::UTP_PlanningAgent()
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.SetTickFunctionEnable(true);
 }
-
-
 
 void UTP_PlanningAgent::BeginPlay()
 {
@@ -157,6 +155,9 @@ void UTP_PlanningAgent::FollowPlan(float DeltaTime)
 	}
 
 	EActionStatus currentStepStatus = CurrentPlan.PlanActions[CurrentPlanIndex]->PerformAction(this->GetOwner(), DeltaTime);
+	if (isDebug) {
+		UE_LOG(LogTemp, Log, TEXT("Goal: %s, Action %s"), *CurrentGoal->GetName(), *CurrentPlan.PlanActions[CurrentPlanIndex]->GetName());
+	}
 	if (currentStepStatus == EActionStatus::Completed)
 	{
 		if (isDebug) {

@@ -38,6 +38,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	ASquad* Squad;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
+	FVector FormationPosition;
+
+	UFUNCTION(BlueprintCallable, Category = "Planner")
+	void UpdateFormationPosition();
+
 	UFUNCTION(BlueprintCallable, Category = "Planner")
 	void SetAgentState(EAgentState state) { AgentState = state; }
 

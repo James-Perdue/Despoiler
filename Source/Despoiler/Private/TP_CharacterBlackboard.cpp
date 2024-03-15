@@ -2,6 +2,7 @@
 
 
 #include "TP_CharacterBlackboard.h"
+#include "GoalAICharacter.h"
 
 // Sets default values for this component's properties
 UTP_CharacterBlackboard::UTP_CharacterBlackboard()
@@ -37,8 +38,21 @@ void UTP_CharacterBlackboard::SetCommonLocalState(TMap<FString, bool>* LocalStat
 	{*/
 		LocalState->Emplace("HasTarget", false);
 		LocalState->Emplace("AtTarget", false);
+		LocalState->Emplace("InFormation", false);
+
 	//}
 
+}
+
+void UTP_CharacterBlackboard::UpdateFormationPosition()
+{
+	if (Squad == nullptr || Squad->SquadBlackboard == nullptr)
+	{
+		return;
+	}
+	
+	AGoalAICharacter* owner = Cast<AGoalAICharacter>(this->GetOwner());
+	FormationPosition = Squad->SquadBlackboard->FetchFormationLocation(owner);
 }
 
 TArray<AActor*> UTP_CharacterBlackboard::GetAttackingThreats()

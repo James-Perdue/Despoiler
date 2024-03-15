@@ -46,3 +46,10 @@ enum class ESquadState : uint8
 	Free UMETA(DisplayName = "Free"),
 	Retreat UMETA(DisplayName = "Retreat")
 };
+
+UENUM(BlueprintType)
+enum class EFormation : uint8
+{
+	Row UMETA(DisplayName = "Row"),
+	Column UMETA(DisplayName = "Column")
+};

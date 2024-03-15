@@ -43,9 +43,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	virtual void DamageEntity_Implementation(FDamageInfo DamageInfo) override;
 
 	virtual void Die_Implementation() override;
@@ -55,6 +52,9 @@ public:
 	virtual EActionStatus  Defend_Implementation() override;
 
 	virtual EActionStatus  Target_Implementation() override;
+
+	virtual EActionStatus  MoveTo_Implementation(FVector targetLocation, float minDistance, bool bStopOnOverlap) override;
+
 
 
 

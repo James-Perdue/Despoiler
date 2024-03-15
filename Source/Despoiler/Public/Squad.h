@@ -51,6 +51,8 @@ protected:
 
 	void SpawnWave();
 
+	void InitSquad();
+
 private:
 
 	AActor* ActiveTarget;

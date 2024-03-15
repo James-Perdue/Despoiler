@@ -2,6 +2,7 @@
 
 
 #include "SquadBlackboardComponent.h"
+#include "GoalAICharacter.h"
 #include "Squad.h"
 
 // Sets default values for this component's properties
@@ -31,15 +32,116 @@ void USquadBlackboardComponent::RemoveMember(AGoalAICharacter* member)
 		{
 			memberCopy.Remove(member);
 			Members = memberCopy;
+			SetFormation();
 		}
 	}
+}
+
+void USquadBlackboardComponent::SetFormation()
+{
+	//Trace to ground
+	if (Leader == nullptr || !Leader->Alive)
+	{
+		FVector startLocation = this->GetOwner()->GetActorLocation();
+		FVector endLocation = startLocation + FVector::DownVector * 1000;
+		FHitResult hitResult;
+		FVector groundLocation = FVector(0, 0, 0);
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, startLocation, endLocation, ECC_Visibility))
+		{
+			groundLocation = hitResult.ImpactPoint;
+		}
+
+		//For common formation start with upper left
+		FVector placementLocation = FVector(groundLocation.X, groundLocation.Y - 0.5f * FormationWidth * FormationSpacing, groundLocation.Z);
+		TArray<AActor*> memberActors = TArray<AActor*>();
+		for (AGoalAICharacter* actor : Members)
+		{
+			memberActors.Add(Cast<AActor>(actor));
+			
+		}
+		AActor* leaderActor = UGeneralUtil::GetClosestActor(placementLocation, memberActors);
+		if (leaderActor == nullptr) {
+			UE_LOG(LogTemp, Log, TEXT("Squad failed to find a good leader"));
+			return;
+		}
+
+		Leader = Cast<AGoalAICharacter>(leaderActor);
+		FormationMap.Emplace(Leader, FVector(0, 0, 0));
+	}
+	GetWorld()->GetTimerManager().ClearTimer(UpdateFormationTimer);
+
+	FVector placementLocation = FVector(0,0,0);
+
+	TArray<AGoalAICharacter*> memberCopy = Members;
+	memberCopy.Remove(Leader);
+	/*FVector LeaderLocation = Leader->GetActorLocation();
+	memberCopy.Sort([LeaderLocation] (const AGoalAICharacter& A, const AGoalAICharacter& B) {
+		return FVector::DistSquared(LeaderLocation, A.GetActorLocation()) < FVector::DistSquared(LeaderLocation, B.GetActorLocation());
+	});*/
+
+	int currentRow = 0;
+	int currentRowIndex = 1;
+	for (AGoalAICharacter* member : memberCopy)
+	{
+		if (member == nullptr || member->Alive == false)
+		{
+			continue;
+		}
+		placementLocation.Y += FormationSpacing;
+		if (currentRowIndex >= FormationWidth)
+		{
+			currentRowIndex = 0;
+			currentRow++;
+			placementLocation.X = placementLocation.X - FormationSpacing;
+			placementLocation.Y = 0;
+
+		}
+
+		FormationMap.Emplace(member, placementLocation);
+		currentRowIndex++;
+	}
+}
+
+FVector USquadBlackboardComponent::FetchFormationLocation(AGoalAICharacter* member)
+{
+	if (Leader == nullptr)
+	{
+		return FVector(0, 0, 0);
+	}
+
+	FVector* result = FormationMap.Find(member);
+	if (result != nullptr)
+	{
+		//You are leader
+		if (member == Leader)
+		{
+			//member->SetActorRotation(this->GetOwner()->GetActorRotation());
+			return FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y - 0.5f * FormationWidth * FormationSpacing, member->GetActorLocation().Z);
+		}
+		else {
+			FVector newLocation = *result;
+			if (Leader != nullptr)
+			{
+				FVector rotationVector = *result;
+				rotationVector = this->GetOwner()->GetActorRotation().RotateVector(rotationVector);
+				newLocation = Leader->GetActorLocation() + rotationVector;
+			}
+			
+			//UE_LOGFMT(LogTemp, Log, "Vector Rep: ROtator: {1} Result: {2} Rotated: {3}, Final: {4}", Leader->GetActorRotation().ToString(), result->ToString(), rotationVector.ToString(), newLocation.ToString());
+			return newLocation;
+		}
+		
+	}
+	return FVector(0,0,0);
 }
 
 // Called when the game starts
 void USquadBlackboardComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	//TODO: trigger this only until a squad formation is set, then when members die
+	GetWorld()->GetTimerManager().SetTimer(UpdateFormationTimer, this, &USquadBlackboardComponent::SetFormation, .05, true, -1);
+	//SetFormation();
 	// ...
 	
 }

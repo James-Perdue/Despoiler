@@ -31,4 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = AI)
 	EActionStatus Target();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = AI)
+	EActionStatus MoveTo(FVector targetLocation, float minDistance, bool bStopOnOverlap);
 };

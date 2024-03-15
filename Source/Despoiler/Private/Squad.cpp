@@ -100,7 +100,7 @@ EActionStatus ASquad::MoveTo(float DeltaTime)
 	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), targetLocation);
 	this->SetActorRotation(NewRotation);
 
-	FVector NewLocation = FMath::VInterpTo(MoveOrigin, targetLocation, MoveDeltaTime, DefaultSpeed);
+	FVector NewLocation = FMath::VInterpConstantTo(this->GetActorLocation(), targetLocation, MoveDeltaTime, DefaultSpeed);
 
 	this->SetActorLocation(NewLocation);
 	/*AAIController* controller = Cast<AAIController>(this->GetController());
@@ -116,7 +116,7 @@ void ASquad::BeginPlay()
 {
 	Super::BeginPlay();
 	//MovementComponent->MaxSpeed = DefaultSpeed;
-	SpawnWave();
+	InitSquad();
 	FVector initLocation = FVector(this->GetActorLocation().X, this->GetActorLocation().Y, DefaultElevation);
 	this->SetActorLocation(initLocation);
 }
@@ -141,6 +141,57 @@ void ASquad::SpawnWave()
 			SquadBlackboard->Members.Add(spawnedMember);
 		}
 	}
+}
+
+void ASquad::InitSquad()
+{
+	if (SquadBlackboard == nullptr)
+	{
+		return;
+	}
+	UWorld* World = this->GetWorld();
+	FVector placementLocation = FVector
+	(
+		this->GetActorLocation().X,
+		this->GetActorLocation().Y - 0.5f * SquadBlackboard->FormationWidth * SquadBlackboard->FormationSpacing,
+		this->GetActorLocation().Z
+	);
+	int currentRow = 0;
+	int currentRowIndex = 0;
+
+	for (const auto& SpawnPair : SquadInitMembers) {
+		for (int i = 0; i < SpawnPair.Value; i++) {
+			currentRowIndex++;
+
+			AGoalAICharacter* spawnedMember = nullptr;
+			FVector SpawnPoint = FVector(placementLocation.X, placementLocation.Y, this->GetActorLocation().Z);
+			FActorSpawnParameters spawnParameters;
+			FVector rotationVector = SpawnPoint - GetActorLocation();
+			rotationVector = GetActorRotation().RotateVector(rotationVector);
+			SpawnPoint = GetActorLocation() + rotationVector;
+
+			spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			spawnedMember = World->SpawnActor<AGoalAICharacter>(SpawnPair.Key, SpawnPoint, GetActorRotation());
+			if (spawnedMember != nullptr)
+			{
+				spawnedMember->Blackboard->Squad = this;
+				spawnedMember->Blackboard->TeamAssignment = SquadBlackboard->TeamAssignment;
+				spawnedMember->SpawnDefaultController();
+				SquadBlackboard->Members.Add(spawnedMember);
+				placementLocation.Y += SquadBlackboard->FormationSpacing;
+				if (currentRowIndex >= SquadBlackboard->FormationWidth)
+				{
+					currentRowIndex = 0;
+					currentRow++;
+					placementLocation.X = placementLocation.X - SquadBlackboard->FormationSpacing;
+					placementLocation.Y = this->GetActorLocation().Y - 0.5f * SquadBlackboard->FormationWidth * SquadBlackboard->FormationSpacing;
+
+				}
+			}
+			
+		}
+	}
+
 }
 
 // Called every frame

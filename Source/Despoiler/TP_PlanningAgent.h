@@ -179,5 +179,7 @@ private:
 	UPROPERTY()
 	TArray<UAction*> ActionObjects;
 	int CurrentPlanIndex = 0;
+
+	UPROPERTY(EditAnywhere)
 	bool isDebug = false;
 };
