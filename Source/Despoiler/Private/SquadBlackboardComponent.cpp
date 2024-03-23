@@ -35,10 +35,16 @@ void USquadBlackboardComponent::RemoveMember(AGoalAICharacter* member)
 			SetFormation();
 		}
 	}
+	if (Members.Num() == 0)
+	{
+		this->GetOwner()->Destroy();
+	}
 }
 
 void USquadBlackboardComponent::SetFormation()
 {
+	// ADjusted row width helps formation condense down
+	int adjustedRowWidth = FormationWidth > Members.Num() ? Members.Num() : FormationWidth;
 	//Trace to ground
 	if (Leader == nullptr || !Leader->Alive)
 	{
@@ -52,7 +58,12 @@ void USquadBlackboardComponent::SetFormation()
 		}
 
 		//For common formation start with upper left
-		FVector placementLocation = FVector(groundLocation.X, groundLocation.Y - 0.5f * FormationWidth * FormationSpacing, groundLocation.Z);
+		float yOffset = FormationWidth % 2 == 0 ? 0.5f * adjustedRowWidth * FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * FormationSpacing;
+		FVector placementLocation = FVector(groundLocation.X, groundLocation.Y - yOffset, groundLocation.Z);
+
+		FVector rotationVector = placementLocation - FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y, placementLocation.Z);
+		rotationVector = this->GetOwner()->GetActorRotation().RotateVector(rotationVector);
+		placementLocation = FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y, placementLocation.Z) + rotationVector;
 		TArray<AActor*> memberActors = TArray<AActor*>();
 		for (AGoalAICharacter* actor : Members)
 		{
@@ -70,7 +81,7 @@ void USquadBlackboardComponent::SetFormation()
 	}
 	GetWorld()->GetTimerManager().ClearTimer(UpdateFormationTimer);
 
-	FVector placementLocation = FVector(0,0,0);
+	FVector placementOffset = FVector(0,0,0);
 
 	TArray<AGoalAICharacter*> memberCopy = Members;
 	memberCopy.Remove(Leader);
@@ -87,17 +98,17 @@ void USquadBlackboardComponent::SetFormation()
 		{
 			continue;
 		}
-		placementLocation.Y += FormationSpacing;
-		if (currentRowIndex >= FormationWidth)
+		placementOffset.Y += FormationSpacing;
+		if (currentRowIndex >= adjustedRowWidth)
 		{
 			currentRowIndex = 0;
 			currentRow++;
-			placementLocation.X = placementLocation.X - FormationSpacing;
-			placementLocation.Y = 0;
+			placementOffset.X = placementOffset.X - FormationSpacing;
+			placementOffset.Y = 0;
 
 		}
 
-		FormationMap.Emplace(member, placementLocation);
+		FormationMap.Emplace(member, placementOffset);
 		currentRowIndex++;
 	}
 }
@@ -115,8 +126,12 @@ FVector USquadBlackboardComponent::FetchFormationLocation(AGoalAICharacter* memb
 		//You are leader
 		if (member == Leader)
 		{
-			//member->SetActorRotation(this->GetOwner()->GetActorRotation());
-			return FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y - 0.5f * FormationWidth * FormationSpacing, member->GetActorLocation().Z);
+			int adjustedRowWidth = FormationWidth > Members.Num() ? Members.Num() : FormationWidth;
+
+			FVector initialPlacement = FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y - 0.5f * adjustedRowWidth * FormationSpacing, member->GetActorLocation().Z);
+			FVector rotationVector = initialPlacement - FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y, initialPlacement.Z);
+			rotationVector = this->GetOwner()->GetActorRotation().RotateVector(rotationVector);
+			return FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y, initialPlacement.Z) + rotationVector;
 		}
 		else {
 			FVector newLocation = *result;

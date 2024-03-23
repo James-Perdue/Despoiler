@@ -53,3 +53,10 @@ enum class EFormation : uint8
 	Row UMETA(DisplayName = "Row"),
 	Column UMETA(DisplayName = "Column")
 };
+
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Sword UMETA(DisplayName = "Sword"),
+	Spear UMETA(DisplayName = "Spear")
+};

@@ -2,6 +2,7 @@
 
 
 #include "Team.h"
+#include <Despoiler/DespoilerGameMode.h>
 
 // Sets default values
 ATeam::ATeam()
@@ -19,6 +20,12 @@ AActor* ATeam::GetClosestMember(FVector location)
 void ATeam::AddMember(AActor* member)
 {
 	Members.Add(member);
+	ADespoilerGameMode* mode = Cast<ADespoilerGameMode>(this->GetWorld()->GetAuthGameMode());
+
+	if (mode != nullptr)
+	{
+		mode->TeamUpdateDelegate.Broadcast();
+	}
 }
 
 void ATeam::RemoveMember(AActor* member)
@@ -30,6 +37,13 @@ void ATeam::RemoveMember(AActor* member)
 		{
 			memberCopy.Remove(member);
 			Members = memberCopy;
+
+			ADespoilerGameMode* mode = Cast<ADespoilerGameMode>(this->GetWorld()->GetAuthGameMode());
+
+			if (mode != nullptr)
+			{
+				mode->TeamUpdateDelegate.Broadcast();
+			}
 		}
 	}
 }
@@ -55,6 +69,24 @@ void ATeam::RemoveSquad(ASquad* squad)
 void ATeam::SetObjective(AActor* actor)
 {
 	CurrentObjective = actor;
+}
+
+void ATeam::AddPosition(APositionMarker* member)
+{
+	Positions.Add(member);
+}
+
+void ATeam::RemovePosition(APositionMarker* member)
+{
+	if (member != nullptr)
+	{
+		TArray<APositionMarker*> listCopy = Positions;
+		if (listCopy.Contains(member))
+		{
+			listCopy.Remove(member);
+			Positions = listCopy;
+		}
+	}
 }
 
 // Called when the game starts or when spawned

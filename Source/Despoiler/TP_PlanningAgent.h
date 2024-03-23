@@ -48,12 +48,12 @@ class DESPOILER_API Planner
 {
 public:
 	//Need method to evaluate states given a goal and current. It needs to be cheap
-	static FPlan GetPlan( TMap<FString, bool> CurrentState,  TMap<FString, bool> GoalState,  TArray<UAction*> PossibleActions, AActor* actor);
+	static FPlan GetPlan( TMap<FString, bool> CurrentState,  TMap<FString, bool> GoalState,  TArray<UAction*> PossibleActions, AActor* actor, bool isDebug);
 
 protected:
 	static bool BuildPlans(TMap<FString, bool> GoalState, TArray<UAction*> PossibleActions, FPlanNode* PlanTree, AActor* actor);
 
-	static FPlan FindBestPlan(FPlanNode* PlanTree);
+	static FPlan FindBestPlan(FPlanNode* PlanTree, bool isDebug);
 
 	static TArray<FPlan> TransformPlanTreeToArray(FPlanNode* PlanTree);
 
@@ -182,4 +182,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	bool isDebug = false;
+
+	UPROPERTY(EditAnywhere)
+	bool alwaysReplan = false;
 };

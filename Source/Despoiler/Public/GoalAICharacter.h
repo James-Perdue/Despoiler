@@ -8,6 +8,7 @@
 #include "IDamageable.h"
 #include <CharacterCombatComponent.h>
 #include <GeneralCharacter.h>
+#include <WeaponComponent.h>
 #include "GoalAICharacter.generated.h"
 
 UCLASS(ClassGroup = (Custom))
@@ -27,6 +28,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Planner)
 	class UTP_PlanningAgent* PlanningAgent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<UWeaponComponent> WeaponClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UWeaponComponent* Weapon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat)
 	int MaxHealth;

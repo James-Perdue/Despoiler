@@ -38,6 +38,14 @@ void UCharacterCombatComponent::BeginPlay()
 	{
 		CharacterBlackboard = blackboard;
 	}
+	if (Weapon != nullptr)
+	{
+		UE_LOGFMT(LogTemp, Log, "Equipped");
+	}
+	else
+	{
+		UE_LOGFMT(LogTemp, Log, "No weapon equipped");
+	}
 }
 
 

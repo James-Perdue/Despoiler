@@ -78,7 +78,7 @@ void UTP_PlanningAgent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UTP_PlanningAgent::CheckGoal()
 {
 	UGoal* bestGoal = GetBestGoal();
-	if (CurrentGoal == nullptr || bestGoal != CurrentGoal)
+	if (CurrentGoal == nullptr || bestGoal != CurrentGoal || alwaysReplan)
 	{
 		CurrentGoal = bestGoal;
 		if (CurrentGoal != nullptr) {
@@ -96,7 +96,7 @@ void UTP_PlanningAgent::FetchPlan()
 		}
 
 		blackboard->SetCommonLocalState(&this->LocalState);
-		CurrentPlan = Planner::GetPlan(LocalState, CurrentGoal->GetDesiredState(), ActionObjects, this->GetOwner());
+		CurrentPlan = Planner::GetPlan(LocalState, CurrentGoal->GetDesiredState(), ActionObjects, this->GetOwner(), this->isDebug);
 		CurrentPlanIndex = 0;
 	}
 }
@@ -181,7 +181,7 @@ WorldStateStore::WorldStateStore()
 {
 }
 
-FPlan Planner::GetPlan(TMap<FString, bool> CurrentState, TMap<FString, bool> GoalState, TArray<UAction*> PossibleActions, AActor* actor)
+FPlan Planner::GetPlan(TMap<FString, bool> CurrentState, TMap<FString, bool> GoalState, TArray<UAction*> PossibleActions, AActor* actor, bool isDebug)
 {
 	TMap<FString, bool> GoalCopy = GoalState;
 	GOAPUtil::RemoveSatisfied(CurrentState, &GoalCopy);
@@ -194,7 +194,7 @@ FPlan Planner::GetPlan(TMap<FString, bool> CurrentState, TMap<FString, bool> Goa
 	root.NodeAction = nullptr;
 	if (BuildPlans(GoalCopy, PossibleActions, &root, actor))
 	{
-		FPlan plan = FindBestPlan(&root);
+		FPlan plan = FindBestPlan(&root, isDebug);
 		return plan;
 	}
 
@@ -240,7 +240,7 @@ bool Planner::BuildPlans(TMap<FString, bool> GoalState, TArray<UAction*> Possibl
 	return nodeWorks;
 }
 
-FPlan Planner::FindBestPlan(FPlanNode* PlanTree)
+FPlan Planner::FindBestPlan(FPlanNode* PlanTree, bool isDebug)
 {
 	FPlan bestPlan = FPlan();
 	bestPlan.Cost = 1000000;
@@ -248,7 +248,8 @@ FPlan Planner::FindBestPlan(FPlanNode* PlanTree)
 	for(FPlan plan : plans)
 	{
 		//print plan
-		//PrintPlan(plan);
+		if(isDebug)
+			PrintPlan(plan);
 		if (bestPlan.Cost > plan.Cost) 
 		{
 			bestPlan = plan;

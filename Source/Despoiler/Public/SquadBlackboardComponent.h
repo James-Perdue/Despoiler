@@ -24,8 +24,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	ESquadState SquadState;
 
-	//AActor* Leader
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	TArray<AGoalAICharacter*> Members;
 
@@ -34,6 +32,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
 	float FormationSpacing;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
+	float Cohesion = 1;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
 	int FormationWidth;

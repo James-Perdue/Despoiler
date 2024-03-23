@@ -7,6 +7,7 @@
 #include <GeneralEnums.h>
 #include <IDamageable.h>
 #include <TP_CharacterBlackboard.h>
+#include <WeaponComponent.h>
 #include "CharacterCombatComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -41,6 +42,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	ECombatState DefendState;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	UWeaponComponent* Weapon;
+
+	UFUNCTION(BlueprintCallable)
+	void EquipWeapon(UWeaponComponent* NewWeapon);
 
 protected:
 

@@ -36,4 +36,7 @@ void ADespoilerGameMode::BeginPlay()
 	DefendingTeam->Team = ETeam::Defender;
 	Teams.Add(ETeam::Defender, DefendingTeam);
 
+	GameInitDelegate.Broadcast();
+	TeamUpdateDelegate.Broadcast();
+
 }

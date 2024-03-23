@@ -10,12 +10,13 @@
 AGoalAICharacter::AGoalAICharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	PlanningAgent = CreateDefaultSubobject<UTP_PlanningAgent>(TEXT("PlanningAgent"));
 	Blackboard = CreateDefaultSubobject<UTP_CharacterBlackboard>(TEXT("Blackboard"));
 	Blackboard->CurrentTarget = nullptr;
 
 	CombatComponent = CreateDefaultSubobject<UCharacterCombatComponent>(TEXT("CombatComponent"));
+	//Weapon = CreateDefaultSubobject<UWeaponComponent>(TEXT("Weapon"));
 
 }
 
@@ -24,6 +25,13 @@ void AGoalAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Health = MaxHealth;
+	Weapon = NewObject<UWeaponComponent>(this, WeaponClass);
+	if (Weapon != nullptr)
+	{
+		Weapon->RegisterComponent();
+		Weapon->AttachToComponent(this->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("LHandSocket"));
+	}
+	CombatComponent->EquipWeapon(Weapon);
 }
 
 // Called every frame
@@ -53,6 +61,13 @@ void AGoalAICharacter::Die_Implementation()
 	{
 		PlanningAgent->StopPlanning();
 	}
+
+	ADespoilerGameMode* mode = Cast<ADespoilerGameMode>(this->GetWorld()->GetAuthGameMode());
+	if (mode != nullptr)
+	{
+		mode->DeathDelegate.Broadcast(this);
+	}
+
 	this->GetMesh()->SetCollisionProfileName("Ragdoll");
 	this->GetMesh()->SetSimulatePhysics(true);
 	this->SetLifeSpan(4);

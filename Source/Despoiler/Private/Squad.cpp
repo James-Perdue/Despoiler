@@ -62,10 +62,28 @@ EActionStatus ASquad::Target()
 				}
 			}
 			SquadBlackboard->CurrentTarget = UGeneralUtil::GetClosestActor(this->GetActorLocation(), squadActors);
-			break;
 		}
+		break;
 	}
 	case ESquadState::HoldPosition:
+	{
+		if (SquadBlackboard->MyTeam == nullptr)
+		{
+			return EActionStatus::Failed;
+		}
+
+		TArray<APositionMarker*> positions = SquadBlackboard->MyTeam->GetPositions();
+		if (positions.Num() > 0)
+		{
+			TArray<AActor*> copiedActors = TArray<AActor*>();
+			for (APositionMarker* position : positions)
+			{
+				copiedActors.Add(Cast<AActor>(position));
+			}
+			SquadBlackboard->CurrentTarget = UGeneralUtil::GetClosestActor(this->GetActorLocation(), copiedActors);
+		}
+		break;
+	}
 	default:
 		break;
 	}
@@ -150,12 +168,23 @@ void ASquad::InitSquad()
 		return;
 	}
 	UWorld* World = this->GetWorld();
+
+	int totalToSpawn = 0;
+	for (const auto& SpawnPair : SquadInitMembers) 
+	{
+		totalToSpawn += SpawnPair.Value;
+	}
+
+	int adjustedRowWidth = SquadBlackboard->FormationWidth > totalToSpawn ? totalToSpawn : SquadBlackboard->FormationWidth;
+
+	float yOffset = SquadBlackboard->FormationWidth % 2 == 0 ? 0.5f * adjustedRowWidth * SquadBlackboard->FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * SquadBlackboard->FormationSpacing;
 	FVector placementLocation = FVector
 	(
 		this->GetActorLocation().X,
-		this->GetActorLocation().Y - 0.5f * SquadBlackboard->FormationWidth * SquadBlackboard->FormationSpacing,
+		this->GetActorLocation().Y - yOffset,
 		this->GetActorLocation().Z
 	);
+
 	int currentRow = 0;
 	int currentRowIndex = 0;
 
@@ -179,12 +208,12 @@ void ASquad::InitSquad()
 				spawnedMember->SpawnDefaultController();
 				SquadBlackboard->Members.Add(spawnedMember);
 				placementLocation.Y += SquadBlackboard->FormationSpacing;
-				if (currentRowIndex >= SquadBlackboard->FormationWidth)
+				if (currentRowIndex >= adjustedRowWidth)
 				{
 					currentRowIndex = 0;
 					currentRow++;
 					placementLocation.X = placementLocation.X - SquadBlackboard->FormationSpacing;
-					placementLocation.Y = this->GetActorLocation().Y - 0.5f * SquadBlackboard->FormationWidth * SquadBlackboard->FormationSpacing;
+					placementLocation.Y = this->GetActorLocation().Y - yOffset;
 
 				}
 			}

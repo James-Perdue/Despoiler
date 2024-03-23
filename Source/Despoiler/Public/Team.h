@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include <GeneralEnums.h>
 #include <GeneralUtil.h>
+#include <PositionMarker.h>
 #include "Team.generated.h"
 
 UCLASS(ClassGroup = (Custom))
@@ -44,6 +45,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	void SetObjective(AActor* actor);
 
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	TArray<APositionMarker*> GetPositions() { return Positions; }
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void AddPosition(APositionMarker* member);
+
+	UFUNCTION(BlueprintCallable, Category = "GOAP")
+	void RemovePosition(APositionMarker* member);
+
 	ETeam Team;
 
 protected:
@@ -55,6 +65,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	TArray<ASquad*> Squads;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
+	TArray<APositionMarker*> Positions;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	AActor* CurrentObjective;
