@@ -46,6 +46,11 @@ void ATeam::RemoveMember(AActor* member)
 			}
 		}
 	}
+
+	if (Members.Num() <= 0)
+	{
+		TeamDefeatedDelegate.Broadcast(Team);
+	}
 }
 
 void ATeam::AddSquad(ASquad* squad)

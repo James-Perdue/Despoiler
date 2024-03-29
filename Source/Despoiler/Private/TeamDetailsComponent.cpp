@@ -20,7 +20,12 @@ void UTeamDetailsComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	this->GetOwner()->GetWorld()->GetTimerManager().SetTimer(AssignTeamTimer, this, &UTeamDetailsComponent::AssignTeam, 0.1, true);
+	//this->GetOwner()->GetWorld()->GetTimerManager().SetTimer(AssignTeamTimer, this, &UTeamDetailsComponent::AssignTeam, 0.1, true);
+	ADespoilerGameMode* mode = Cast<ADespoilerGameMode>(this->GetWorld()->GetAuthGameMode());
+	if (mode != nullptr)
+	{
+		mode->GameInitDelegate.AddDynamic(this, &UTeamDetailsComponent::AssignTeam);
+	}
 }
 
 void UTeamDetailsComponent::AssignTeam()
@@ -44,7 +49,7 @@ void UTeamDetailsComponent::AssignTeam()
 		OpposingTeam = mode->Teams[ETeam::Attacker];
 	}
 
-	this->GetOwner()->GetWorld()->GetTimerManager().ClearTimer(AssignTeamTimer);
+	//this->GetOwner()->GetWorld()->GetTimerManager().ClearTimer(AssignTeamTimer);
 }
 
 // Called every frame

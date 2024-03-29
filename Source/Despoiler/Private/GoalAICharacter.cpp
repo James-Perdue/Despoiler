@@ -16,6 +16,8 @@ AGoalAICharacter::AGoalAICharacter()
 	Blackboard->CurrentTarget = nullptr;
 
 	CombatComponent = CreateDefaultSubobject<UCharacterCombatComponent>(TEXT("CombatComponent"));
+	InteractComponent = CreateDefaultSubobject<UCharacterInteractComponent>(TEXT("InteractComponent"));
+
 	//Weapon = CreateDefaultSubobject<UWeaponComponent>(TEXT("Weapon"));
 
 }
@@ -167,5 +169,15 @@ EActionStatus AGoalAICharacter::MoveTo_Implementation(FVector targetLocation, fl
 	}
 
 	return EActionStatus::Completed;
+}
+
+EActionStatus AGoalAICharacter::Capture_Implementation()
+{
+	if (InteractComponent == nullptr)
+	{
+		return EActionStatus::Failed;
+	}
+
+	return InteractComponent->TryCapture();
 }
 

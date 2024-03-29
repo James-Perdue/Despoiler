@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "IDamageable.h"
 #include <CharacterCombatComponent.h>
+#include <CharacterInteractComponent.h>
 #include <GeneralCharacter.h>
 #include <WeaponComponent.h>
 #include "GoalAICharacter.generated.h"
@@ -25,6 +26,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Planner)
 	class UCharacterCombatComponent* CombatComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Planner)
+	class UCharacterInteractComponent* InteractComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Planner)
 	class UTP_PlanningAgent* PlanningAgent;
@@ -61,6 +65,9 @@ public:
 	virtual EActionStatus  Target_Implementation() override;
 
 	virtual EActionStatus  MoveTo_Implementation(FVector targetLocation, float minDistance, bool bStopOnOverlap) override;
+
+	virtual EActionStatus  Capture_Implementation() override;
+
 
 
 

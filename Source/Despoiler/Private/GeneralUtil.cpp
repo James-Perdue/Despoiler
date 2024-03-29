@@ -36,3 +36,10 @@ bool UGeneralUtil::IsSquadStateEqual(ASquad* squad, ESquadState goalState)
 
 	return false;
 }
+
+FVector UGeneralUtil::RotateVector(FVector pivot, FVector position, FRotator rotation)
+{
+	FVector rotationVector = position - pivot;
+	rotationVector = rotation.RotateVector(rotationVector);
+	return pivot + rotationVector;
+}

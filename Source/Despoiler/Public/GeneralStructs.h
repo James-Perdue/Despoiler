@@ -8,6 +8,8 @@
 #include "GeneralEnums.h"
 #include "GeneralStructs.generated.h"
 
+//Forward Declarations
+class AGoalAICharacter;
 
 USTRUCT(BlueprintType)
 struct DESPOILER_API FDamageInfo
@@ -27,4 +29,37 @@ struct DESPOILER_API FDamageInfo
 		Damage = newDamage;
 		DamagingActor = newDamagingActor;
 	}*/
+};
+
+USTRUCT(BlueprintType)
+struct DESPOILER_API FFormationInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Formation)
+	int FormationWidth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Formation)
+	int NumRows;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Formation)
+	int NumColumns;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Formation)
+	AGoalAICharacter* Leader;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Formation)
+	EFormation FormationType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Formation")
+	float FormationSpacing;
+};
+
+USTRUCT(BlueprintType)
+struct DESPOILER_API FColumn
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Formation)
+	TArray<AGoalAICharacter*> Members;
 };

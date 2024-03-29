@@ -113,10 +113,16 @@ void UCharacterCombatComponent::HitTarget()
 {
 	if (localTarget == nullptr)
 	{
+		CharacterBlackboard->SetAgentState(EAgentState::Idle);
 		return;
 	}
 
 	UWorld* world = this->GetOwner()->GetWorld();
+	if (this->GetOwner() == nullptr || localTarget == nullptr)
+	{
+		CharacterBlackboard->SetAgentState(EAgentState::Idle);
+		return;
+	}
 	float distanceToTarget = FVector::Dist(this->GetOwner()->GetActorLocation(), localTarget->GetActorLocation());
 	//UE_LOG(LogTemp, Log, TEXT("Distance to Target: %.2f"), distanceToTarget);
 	if (distanceToTarget <= AttackRange)

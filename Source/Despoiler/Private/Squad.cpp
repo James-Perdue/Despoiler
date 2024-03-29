@@ -175,9 +175,9 @@ void ASquad::InitSquad()
 		totalToSpawn += SpawnPair.Value;
 	}
 
-	int adjustedRowWidth = SquadBlackboard->FormationWidth > totalToSpawn ? totalToSpawn : SquadBlackboard->FormationWidth;
+	int adjustedRowWidth = SquadBlackboard->FormationInfo.FormationWidth > totalToSpawn ? totalToSpawn : SquadBlackboard->FormationInfo.FormationWidth;
 
-	float yOffset = SquadBlackboard->FormationWidth % 2 == 0 ? 0.5f * adjustedRowWidth * SquadBlackboard->FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * SquadBlackboard->FormationSpacing;
+	float yOffset = SquadBlackboard->FormationInfo.FormationWidth % 2 == 0 ? 0.5f * adjustedRowWidth * SquadBlackboard->FormationInfo.FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * SquadBlackboard->FormationInfo.FormationSpacing;
 	FVector placementLocation = FVector
 	(
 		this->GetActorLocation().X,
@@ -207,12 +207,12 @@ void ASquad::InitSquad()
 				spawnedMember->Blackboard->TeamAssignment = SquadBlackboard->TeamAssignment;
 				spawnedMember->SpawnDefaultController();
 				SquadBlackboard->Members.Add(spawnedMember);
-				placementLocation.Y += SquadBlackboard->FormationSpacing;
+				placementLocation.Y += SquadBlackboard->FormationInfo.FormationSpacing;
 				if (currentRowIndex >= adjustedRowWidth)
 				{
 					currentRowIndex = 0;
 					currentRow++;
-					placementLocation.X = placementLocation.X - SquadBlackboard->FormationSpacing;
+					placementLocation.X = placementLocation.X - SquadBlackboard->FormationInfo.FormationSpacing;
 					placementLocation.Y = this->GetActorLocation().Y - yOffset;
 
 				}
@@ -220,6 +220,7 @@ void ASquad::InitSquad()
 			
 		}
 	}
+	SquadBlackboard->SetFormation();
 
 }
 

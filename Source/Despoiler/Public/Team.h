@@ -9,6 +9,9 @@
 #include <PositionMarker.h>
 #include "Team.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTeamDefeatedDelegate, ETeam, Team);
+
+
 UCLASS(ClassGroup = (Custom))
 class DESPOILER_API ATeam : public AActor
 {
@@ -17,6 +20,11 @@ class DESPOILER_API ATeam : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATeam();
+
+	ETeam Team;
+
+	UPROPERTY(BlueprintAssignable)
+	FTeamDefeatedDelegate TeamDefeatedDelegate;
 
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	AActor* GetObjective() { return CurrentObjective; }
@@ -53,8 +61,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GOAP")
 	void RemovePosition(APositionMarker* member);
-
-	ETeam Team;
 
 protected:
 	// Called when the game starts or when spawned

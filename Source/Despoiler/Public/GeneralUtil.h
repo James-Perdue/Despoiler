@@ -25,4 +25,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Util")
 	static bool IsSquadStateEqual(ASquad* squad, ESquadState goalState);
+
+	UFUNCTION(BlueprintCallable, Category = "Util")
+	static FVector RotateVector(FVector pivot, FVector position, FRotator rotation);
 };

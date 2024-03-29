@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include <BlackboardBaseComponent.h>
 #include "Logging/StructuredLog.h"
+#include "GeneralStructs.h"
 #include "SquadBlackboardComponent.generated.h"
 // Forward Declarations:
 class AGoalAICharacter;
@@ -27,25 +28,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	TArray<AGoalAICharacter*> Members;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
-	EFormation Formation;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
-	float FormationSpacing;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Planner")
 	float Cohesion = 1;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
-	int FormationWidth;
 
 	UPROPERTY(VisibleAnywhere, Category = "Formation")
 	TMap<AGoalAICharacter*, FVector> FormationMap;
 
 	UPROPERTY(VisibleAnywhere, Category = "Formation")
-	AGoalAICharacter* Leader;
+	TArray<AGoalAICharacter*> FormationMatrix;
 
-	FTimerHandle UpdateFormationTimer;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
+	FFormationInfo FormationInfo;
+
+	TArray<FColumn*> Columns;
 
 	virtual void SetCommonLocalState(TMap<FString, bool>* LocalState) override; 
 
@@ -56,6 +51,9 @@ public:
 	void SetFormation();
 
 	UFUNCTION(BlueprintCallable, Category = "Planner")
+	void UpdateFormation();
+
+	UFUNCTION(BlueprintCallable, Category = "Planner")
 	FVector FetchFormationLocation(AGoalAICharacter* member);
 
 protected:
@@ -64,6 +62,9 @@ protected:
 
 	virtual void AssignTeam() override;
 
+	void UpdateLeader();
+
+	void RepositionMember(int row, int col);
 
 public:	
 	// Called every frame

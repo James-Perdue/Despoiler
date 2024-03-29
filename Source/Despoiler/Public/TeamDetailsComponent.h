@@ -29,11 +29,12 @@ public:
 	ATeam* OpposingTeam;
 
 protected:
-	FTimerHandle AssignTeamTimer;
+	//FTimerHandle AssignTeamTimer;
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
 	virtual void AssignTeam();
 
 

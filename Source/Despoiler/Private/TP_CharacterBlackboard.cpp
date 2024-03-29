@@ -36,9 +36,11 @@ void UTP_CharacterBlackboard::SetCommonLocalState(TMap<FString, bool>* LocalStat
 	}
 	else
 	{*/
-		LocalState->Emplace("HasTarget", false);
-		LocalState->Emplace("AtTarget", false);
-		LocalState->Emplace("InFormation", false);
+	LocalState->Emplace("HasTarget", false);
+	LocalState->Emplace("AtTarget", false);
+	LocalState->Emplace("InFormation", false);
+	LocalState->Emplace("Capturing", false);
+
 
 	//}
 
