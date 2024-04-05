@@ -118,7 +118,7 @@ void UCharacterCombatComponent::HitTarget()
 	}
 
 	UWorld* world = this->GetOwner()->GetWorld();
-	if (this->GetOwner() == nullptr || localTarget == nullptr)
+	if (!IsValid(this->GetOwner()) || !IsValid(localTarget))
 	{
 		CharacterBlackboard->SetAgentState(EAgentState::Idle);
 		return;

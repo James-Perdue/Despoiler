@@ -135,8 +135,9 @@ void ASquad::BeginPlay()
 	Super::BeginPlay();
 	//MovementComponent->MaxSpeed = DefaultSpeed;
 	InitSquad();
-	FVector initLocation = FVector(this->GetActorLocation().X, this->GetActorLocation().Y, DefaultElevation);
-	this->SetActorLocation(initLocation);
+	/*FVector initLocation = FVector(this->GetActorLocation().X, this->GetActorLocation().Y, DefaultElevation);
+	UE_LOGFMT(LogTemp, Log, "Squad spawned at {1}", initLocation.ToString());
+	this->SetActorLocation(initLocation);*/
 }
 
 void ASquad::SpawnWave()
@@ -170,14 +171,14 @@ void ASquad::InitSquad()
 	UWorld* World = this->GetWorld();
 
 	int totalToSpawn = 0;
-	for (const auto& SpawnPair : SquadInitMembers) 
+	for (FCharacterData data : SquadInitCharacterData)
 	{
-		totalToSpawn += SpawnPair.Value;
+		totalToSpawn += data.Count;
 	}
 
 	int adjustedRowWidth = SquadBlackboard->FormationInfo.FormationWidth > totalToSpawn ? totalToSpawn : SquadBlackboard->FormationInfo.FormationWidth;
 
-	float yOffset = SquadBlackboard->FormationInfo.FormationWidth % 2 == 0 ? 0.5f * adjustedRowWidth * SquadBlackboard->FormationInfo.FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * SquadBlackboard->FormationInfo.FormationSpacing;
+	float yOffset = SquadBlackboard->FormationInfo.FormationWidth % 2 == 0 ? 0.5f * (adjustedRowWidth - 1) * SquadBlackboard->FormationInfo.FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * SquadBlackboard->FormationInfo.FormationSpacing;
 	FVector placementLocation = FVector
 	(
 		this->GetActorLocation().X,
@@ -188,25 +189,40 @@ void ASquad::InitSquad()
 	int currentRow = 0;
 	int currentRowIndex = 0;
 
-	for (const auto& SpawnPair : SquadInitMembers) {
-		for (int i = 0; i < SpawnPair.Value; i++) {
+	for (FCharacterData data : SquadInitCharacterData)
+	{
+		if (!CharacterSpawnOptions.Contains(data.CharacterType))
+		{
+			UE_LOGFMT(LogTemp, Log, "No spawn character found for type" );
+			throw;
+		}
+
+		for (int i = 0; i < data.Count; i++)
+		{
 			currentRowIndex++;
 
 			AGoalAICharacter* spawnedMember = nullptr;
+
 			FVector SpawnPoint = FVector(placementLocation.X, placementLocation.Y, this->GetActorLocation().Z);
 			FActorSpawnParameters spawnParameters;
-			FVector rotationVector = SpawnPoint - GetActorLocation();
-			rotationVector = GetActorRotation().RotateVector(rotationVector);
-			SpawnPoint = GetActorLocation() + rotationVector;
+
+			SpawnPoint = UGeneralUtil::RotateVector(GetActorLocation(), SpawnPoint, GetActorRotation());
 
 			spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-			spawnedMember = World->SpawnActor<AGoalAICharacter>(SpawnPair.Key, SpawnPoint, GetActorRotation());
+			const FTransform SpawnTransform = FTransform(GetActorRotation(), SpawnPoint);
+			
+			spawnedMember = World->SpawnActorDeferred<AGoalAICharacter>(CharacterSpawnOptions[data.CharacterType], SpawnTransform);
 			if (spawnedMember != nullptr)
 			{
 				spawnedMember->Blackboard->Squad = this;
 				spawnedMember->Blackboard->TeamAssignment = SquadBlackboard->TeamAssignment;
+				spawnedMember->MaxHealth = data.Health;
+				spawnedMember->WeaponClass = data.WeaponClass;
+				spawnedMember->FinishSpawning(SpawnTransform);
 				spawnedMember->SpawnDefaultController();
+
 				SquadBlackboard->Members.Add(spawnedMember);
+
 				placementLocation.Y += SquadBlackboard->FormationInfo.FormationSpacing;
 				if (currentRowIndex >= adjustedRowWidth)
 				{
@@ -217,7 +233,6 @@ void ASquad::InitSquad()
 
 				}
 			}
-			
 		}
 	}
 	SquadBlackboard->SetFormation();

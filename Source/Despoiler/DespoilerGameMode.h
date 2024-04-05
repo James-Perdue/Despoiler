@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include <Team.h>
 #include "GameFramework/GameModeBase.h"
+#include <GeneralStructs.h>
 #include "DespoilerGameMode.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeathDelegate, AGoalAICharacter*, Actor);

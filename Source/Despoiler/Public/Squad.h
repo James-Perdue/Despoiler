@@ -34,7 +34,10 @@ public:
 	float DefaultElevation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
-	float DefaultSpeed;
+	float DefaultSpeed = 20;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Squad)
+	TArray<FCharacterData> SquadInitCharacterData;
 
 	UFUNCTION(BlueprintCallable, Category = Planner)
 	EActionStatus Target();
@@ -42,9 +45,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Planner)
 	EActionStatus MoveTo(float DeltaTime);
 
+	
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Squad)
 	TMap<TSubclassOf<class AGoalAICharacter>, int> SquadInitMembers;
+
+	
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Squad)
+	TMap<ECharacterType, TSubclassOf<class AGoalAICharacter>> CharacterSpawnOptions;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -10,6 +10,8 @@
 
 //Forward Declarations
 class AGoalAICharacter;
+class UWeaponComponent;
+
 
 USTRUCT(BlueprintType)
 struct DESPOILER_API FDamageInfo
@@ -51,7 +53,7 @@ struct DESPOILER_API FFormationInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Formation)
 	EFormation FormationType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Formation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Formation)
 	float FormationSpacing;
 };
 
@@ -62,4 +64,29 @@ struct DESPOILER_API FColumn
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Formation)
 	TArray<AGoalAICharacter*> Members;
+};
+
+USTRUCT(BlueprintType)
+struct DESPOILER_API FCharacterData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawning)
+	ECharacterType CharacterType;
+
+	//TODO: add WeaponData for spawning custom weapons
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawning)
+	TSubclassOf<UWeaponComponent> WeaponClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawning)
+	int Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawning)
+	float Armor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawning)
+	float Speed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawning)
+	int Count;
 };

@@ -119,14 +119,45 @@ EActionStatus AGoalAICharacter::Target_Implementation()
 	}
 	AActor* target = nullptr;
 
-	TArray<AActor*> attackers = Blackboard->GetAttackingThreats();
-	if (attackers.Num() > 0)
+	if (Blackboard->Squad == nullptr || Blackboard->Squad->SquadBlackboard == nullptr)
 	{
-		target = UGeneralUtil::GetClosestActor(this->GetActorLocation(), attackers);
+		return EActionStatus::Failed;
 	}
-	else
+
+	switch (Blackboard->Squad->SquadBlackboard->SquadState)
 	{
-		target = Blackboard->OpposingTeam->GetClosestMember(this->GetActorLocation());
+		case ESquadState::Capture:
+		{
+			if (Blackboard->MyTeam == nullptr)
+			{
+				return EActionStatus::Failed;
+			}
+
+			if (AActor* objective = Blackboard->MyTeam->GetObjective())
+			{
+				target = objective;
+			}
+			break;
+		}
+		case ESquadState::Attack:
+		case ESquadState::HoldPosition:
+		{
+			if (Blackboard->OpposingTeam == nullptr)
+			{
+				return EActionStatus::Failed;
+			}
+
+			TArray<AActor*> attackers = Blackboard->GetAttackingThreats();
+			if (attackers.Num() > 0)
+			{
+				target = UGeneralUtil::GetClosestActor(this->GetActorLocation(), attackers);
+			}
+			else
+			{
+				target = Blackboard->OpposingTeam->GetClosestMember(this->GetActorLocation());
+			}
+			break;
+		}
 	}
 
 	if (target == nullptr)

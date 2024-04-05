@@ -43,6 +43,10 @@ void USquadBlackboardComponent::RemoveMember(AGoalAICharacter* member)
 
 void USquadBlackboardComponent::SetFormation()
 {
+	if (Members.Num() <= 0)
+	{
+		return;
+	}
 	//Size of Matrix is num rows * num columns
 	FormationInfo.NumRows = FMath::CeilToInt((float)Members.Num() / FormationInfo.FormationWidth);
 	FormationInfo.NumColumns = FMath::CeilToInt((float)Members.Num() / FormationInfo.NumRows);
@@ -110,7 +114,7 @@ void USquadBlackboardComponent::UpdateFormation()
 				//Member is fine or invalid index
 				continue;
 			}
-
+			//TODO: add replacement when first in row and row next has no units
 			//Replacement unit needed, check same column first
 			if (!Columns[col]->Members.IsValidIndex(row + 1))
 			{
@@ -119,13 +123,12 @@ void USquadBlackboardComponent::UpdateFormation()
 
 			if (Columns[col]->Members[row + 1] == nullptr || !Columns[col]->Members[row + 1]->Alive)
 			{
-				//Same column invalid, maybe only do this for first units?
 				int left = col - 1;
 				int right = col + 1;
 				while (left > 0 || right < FormationInfo.NumColumns)
 				{
 					bool foundReplacement = false;
-					//&& Columns[left]->Members.Num() > 1 && Columns[left]->Members.Num() > Columns[col]->Members.Num() + 1
+
 					if (Columns.IsValidIndex(left))
 					{
 						for (int i = Columns[left]->Members.Num() - 1; i > row; i--)
@@ -192,7 +195,7 @@ FVector USquadBlackboardComponent::FetchFormationLocation(AGoalAICharacter* memb
 		//}
 
 		FVector squadLocation = FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y, member->GetActorLocation().Z);
-		FVector formationOrigin = FVector(squadLocation.X, squadLocation.Y - 0.5f * adjustedRowWidth * FormationInfo.FormationSpacing, squadLocation.Z);
+		FVector formationOrigin = FVector(squadLocation.X, squadLocation.Y - 0.5f * (adjustedRowWidth - 1) * FormationInfo.FormationSpacing, squadLocation.Z);
 
 		FVector rotatedOrigin = UGeneralUtil::RotateVector(squadLocation, formationOrigin, this->GetOwner()->GetActorRotation());
 
@@ -261,7 +264,7 @@ void USquadBlackboardComponent::UpdateLeader()
 		}
 
 		//For common formation start with upper left
-		float yOffset = FormationInfo.NumColumns % 2 == 0 ? 0.5f * adjustedRowWidth * FormationInfo.FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * FormationInfo.FormationSpacing;
+		float yOffset = FormationInfo.NumColumns % 2 == 0 ? 0.5f * (adjustedRowWidth - 1) * FormationInfo.FormationSpacing : FMath::Floor((float)adjustedRowWidth / 2) * FormationInfo.FormationSpacing;
 		FVector placementLocation = FVector(groundLocation.X, groundLocation.Y - yOffset, groundLocation.Z);
 
 		FVector rotationVector = placementLocation - FVector(this->GetOwner()->GetActorLocation().X, this->GetOwner()->GetActorLocation().Y, placementLocation.Z);

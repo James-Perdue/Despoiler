@@ -60,3 +60,11 @@ enum class EWeaponType : uint8
 	Sword UMETA(DisplayName = "Sword"),
 	Spear UMETA(DisplayName = "Spear")
 };
+
+UENUM(BlueprintType)
+enum class ECharacterType : uint8
+{
+	Melee UMETA(DisplayName = "Melee"),
+	Ranged UMETA(DisplayName = "Ranged")
+
+};
