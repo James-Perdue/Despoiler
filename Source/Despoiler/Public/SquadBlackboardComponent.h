@@ -34,9 +34,6 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Formation")
 	TMap<AGoalAICharacter*, FVector> FormationMap;
 
-	UPROPERTY(VisibleAnywhere, Category = "Formation")
-	TArray<AGoalAICharacter*> FormationMatrix;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Formation")
 	FFormationInfo FormationInfo;
 

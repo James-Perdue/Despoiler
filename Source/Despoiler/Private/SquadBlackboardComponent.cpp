@@ -50,6 +50,8 @@ void USquadBlackboardComponent::SetFormation()
 	//Size of Matrix is num rows * num columns
 	FormationInfo.NumRows = FMath::CeilToInt((float)Members.Num() / FormationInfo.FormationWidth);
 	FormationInfo.NumColumns = FMath::CeilToInt((float)Members.Num() / FormationInfo.NumRows);
+	Columns.Empty();
+	FormationMap.Empty(Members.Num());
 
 	UpdateLeader();
 	for (int i = 0; i < FormationInfo.NumColumns; i++)
@@ -179,7 +181,7 @@ void USquadBlackboardComponent::UpdateFormation()
 
 FVector USquadBlackboardComponent::FetchFormationLocation(AGoalAICharacter* member)
 {
-	if (FormationInfo.Leader == nullptr || member == nullptr)
+	if (member == nullptr)
 	{
 		return FVector(0, 0, 0);
 	}

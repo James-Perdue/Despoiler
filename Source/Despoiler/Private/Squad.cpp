@@ -109,7 +109,7 @@ EActionStatus ASquad::MoveTo(float DeltaTime)
 	targetLocation.Z = DefaultElevation;
 
 	float distanceToTarget = FVector::Dist(this->GetActorLocation(), targetLocation);
-	if (distanceToTarget < 1)
+	if (distanceToTarget < 25)
 	{
 		return EActionStatus::Completed;
 	}
@@ -135,9 +135,9 @@ void ASquad::BeginPlay()
 	Super::BeginPlay();
 	//MovementComponent->MaxSpeed = DefaultSpeed;
 	InitSquad();
-	/*FVector initLocation = FVector(this->GetActorLocation().X, this->GetActorLocation().Y, DefaultElevation);
+	FVector initLocation = FVector(this->GetActorLocation().X, this->GetActorLocation().Y, DefaultElevation);
 	UE_LOGFMT(LogTemp, Log, "Squad spawned at {1}", initLocation.ToString());
-	this->SetActorLocation(initLocation);*/
+	this->SetActorLocation(initLocation);
 }
 
 void ASquad::SpawnWave()
@@ -171,7 +171,7 @@ void ASquad::InitSquad()
 	UWorld* World = this->GetWorld();
 
 	int totalToSpawn = 0;
-	for (FCharacterData data : SquadInitCharacterData)
+	for (const FCharacterData data : SquadInitCharacterData)
 	{
 		totalToSpawn += data.Count;
 	}
@@ -208,7 +208,7 @@ void ASquad::InitSquad()
 
 			SpawnPoint = UGeneralUtil::RotateVector(GetActorLocation(), SpawnPoint, GetActorRotation());
 
-			spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 			const FTransform SpawnTransform = FTransform(GetActorRotation(), SpawnPoint);
 			
 			spawnedMember = World->SpawnActorDeferred<AGoalAICharacter>(CharacterSpawnOptions[data.CharacterType], SpawnTransform);

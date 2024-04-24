@@ -33,6 +33,11 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
 	EWeaponType WeaponType;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	USoundBase* HitSound;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	USoundBase* BlockSound;
 
 
 protected:

@@ -31,14 +31,14 @@ void ASquadOrigin::BeginPlay()
 		const FTransform SpawnTransform = FTransform(GetActorRotation(), SpawnPoint);
 
 		spawnedSquad = GetWorld()->SpawnActorDeferred<ASquad>(SquadBlueprint, SpawnTransform);
-		if (instance->GetPlayerFormation().FormationWidth > 0 && instance->GetPlayerUnitData().Num() > 0)
+		if (instance->isSaved || instance->GetPlayerFormation().FormationWidth > 0 && instance->GetPlayerUnitData().Num() > 0)
 		{
 			spawnedSquad->SquadBlackboard->FormationInfo = instance->GetPlayerFormation();
 			spawnedSquad->SquadInitCharacterData = instance->GetPlayerUnitData();
 			spawnedSquad->SquadBlackboard->TeamAssignment = ETeam::Attacker;
 		}
 		spawnedSquad->FinishSpawning(SpawnTransform);
-		spawnedSquad->SetActorLocation(this->GetActorLocation());
+		//spawnedSquad->SetActorLocation(this->GetActorLocation());
 	}
 }
 

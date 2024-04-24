@@ -2,6 +2,7 @@
 
 
 #include "CharacterCombatComponent.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values for this component's properties
 UCharacterCombatComponent::UCharacterCombatComponent()
@@ -140,8 +141,12 @@ void UCharacterCombatComponent::HitTarget()
 		{
 			if (blackboard->AgentState == EAgentState::Defending)
 			{
-				//UE_LOG(LogTemp, Log, TEXT("Blocked!"));
+				UE_LOG(LogTemp, Log, TEXT("Blocked!"));
 				blocked = true;
+				if (this->Weapon != nullptr && this->Weapon->BlockSound != nullptr)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, this->Weapon->BlockSound, this->GetOwner()->GetActorLocation());
+				}
 			}
 		}
 		if (!blocked)
@@ -149,6 +154,10 @@ void UCharacterCombatComponent::HitTarget()
 			if (IDamageable* damageTarget = Cast<IDamageable>(localTarget)) {
 				//UE_LOG(LogTemp, Log, TEXT("Hit!"));
 				damageTarget->Execute_DamageEntity(localTarget, damageInfo);
+			}
+			if (this->Weapon != nullptr && this->Weapon->HitSound != nullptr)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, this->Weapon->HitSound, this->GetOwner()->GetActorLocation());
 			}
 		}
 	}

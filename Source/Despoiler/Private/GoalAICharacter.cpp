@@ -199,6 +199,9 @@ EActionStatus AGoalAICharacter::MoveTo_Implementation(FVector targetLocation, fl
 		}
 	}
 
+	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), targetLocation);
+	this->SetActorRotation(FRotator(this->GetActorRotation().Pitch, this->GetActorRotation().Yaw, NewRotation.Roll));
+
 	return EActionStatus::Completed;
 }
 
