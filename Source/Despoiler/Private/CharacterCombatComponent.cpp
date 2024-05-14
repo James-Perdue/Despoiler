@@ -82,6 +82,11 @@ EActionStatus UCharacterCombatComponent::TryAttack(AActor* target)
 				CharacterBlackboard->SetAgentState(EAgentState::Attacking);
 			}
 
+			if (Weapon->AttackMontage && AnimInstance && !AnimInstance->Montage_IsPlaying(nullptr))
+			{
+				AnimInstance->Montage_Play(Weapon->AttackMontage);
+			}
+
 			return EActionStatus::Running;
 		}
 		case ECombatState::Cooldown:
@@ -107,6 +112,12 @@ EActionStatus UCharacterCombatComponent::TryDefend(AActor* target)
 		default:
 			CharacterBlackboard->SetAgentState(EAgentState::Defending);
 	}
+
+	if (Weapon->BlockMontage && AnimInstance && !AnimInstance->Montage_IsPlaying(nullptr))
+	{
+		AnimInstance->Montage_Play(Weapon->BlockMontage);
+	}
+
 	return EActionStatus::Running;
 }
 
@@ -119,45 +130,43 @@ void UCharacterCombatComponent::HitTarget()
 	}
 
 	UWorld* world = this->GetOwner()->GetWorld();
-	if (!IsValid(this->GetOwner()) || !IsValid(localTarget))
+	if (IsValid(this->GetOwner()) && IsValid(localTarget))
 	{
-		CharacterBlackboard->SetAgentState(EAgentState::Idle);
-		return;
-	}
-	float distanceToTarget = FVector::Dist(this->GetOwner()->GetActorLocation(), localTarget->GetActorLocation());
-	//UE_LOG(LogTemp, Log, TEXT("Distance to Target: %.2f"), distanceToTarget);
-	if (distanceToTarget <= AttackRange)
-	{
-		//Hit Target
-		FDamageInfo damageInfo = FDamageInfo();
-		damageInfo.Damage = AttackDamage;
-		damageInfo.DamagingActor = this->GetOwner();
-		bool blocked = false;
-		if (localTarget == nullptr)
+		float distanceToTarget = FVector::Dist(this->GetOwner()->GetActorLocation(), localTarget->GetActorLocation());
+		//UE_LOG(LogTemp, Log, TEXT("Distance to Target: %.2f"), distanceToTarget);
+		if (distanceToTarget <= AttackRange)
 		{
-			return;
-		}
-		if (UTP_CharacterBlackboard* blackboard = localTarget->FindComponentByClass<UTP_CharacterBlackboard>())
-		{
-			if (blackboard->AgentState == EAgentState::Defending)
+			//Hit Target
+			FDamageInfo damageInfo = FDamageInfo();
+			damageInfo.Damage = AttackDamage;
+			damageInfo.DamagingActor = this->GetOwner();
+			bool blocked = false;
+			if (localTarget == nullptr)
 			{
-				UE_LOG(LogTemp, Log, TEXT("Blocked!"));
-				blocked = true;
-				if (this->Weapon != nullptr && this->Weapon->BlockSound != nullptr)
+				return;
+			}
+			if (UTP_CharacterBlackboard* blackboard = localTarget->FindComponentByClass<UTP_CharacterBlackboard>())
+			{
+				if (blackboard->AgentState == EAgentState::Defending)
 				{
-					UGameplayStatics::PlaySoundAtLocation(this, this->Weapon->BlockSound, this->GetOwner()->GetActorLocation());
+					UE_LOG(LogTemp, Log, TEXT("Blocked!"));
+					blocked = true;
+					if (this->Weapon != nullptr && this->Weapon->BlockSound != nullptr)
+					{
+						UGameplayStatics::PlaySoundAtLocation(this, this->Weapon->BlockSound, this->GetOwner()->GetActorLocation());
+					}
 				}
 			}
-		}
-		if (!blocked)
-		{
-			if (IDamageable* damageTarget = Cast<IDamageable>(localTarget)) {
-				//UE_LOG(LogTemp, Log, TEXT("Hit!"));
-				damageTarget->Execute_DamageEntity(localTarget, damageInfo);
-			}
-			if (this->Weapon != nullptr && this->Weapon->HitSound != nullptr)
+			if (!blocked)
 			{
-				UGameplayStatics::PlaySoundAtLocation(this, this->Weapon->HitSound, this->GetOwner()->GetActorLocation());
+				if (IDamageable* damageTarget = Cast<IDamageable>(localTarget)) {
+					//UE_LOG(LogTemp, Log, TEXT("Hit!"));
+					damageTarget->Execute_DamageEntity(localTarget, damageInfo);
+				}
+				if (this->Weapon != nullptr && this->Weapon->HitSound != nullptr)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, this->Weapon->HitSound, this->GetOwner()->GetActorLocation());
+				}
 			}
 		}
 	}

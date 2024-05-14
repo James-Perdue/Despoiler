@@ -17,11 +17,16 @@ class DESPOILER_API UDespoilerGameInstance : public UGameInstance
 
 protected:
 
+	UDespoilerGameInstance();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FFormationInfo PlayerFormationData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FCharacterData> PlayerUnitData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FSaveData SaveData;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -34,9 +39,35 @@ public:
 	void SetPlayerUnitData(TArray<FCharacterData> unitData) { PlayerUnitData = unitData; }
 
 	UFUNCTION(BlueprintCallable)
+	void SetSaveData(FSaveData data) { SaveData = data; }
+
+	UFUNCTION(BlueprintCallable)
+	void IncreaseLevel() { 
+		SaveData.Level += 1;
+		if (SaveData.Level >= 2)
+		{
+			SaveData.Level = 0;
+			SaveData.Stage++;
+		}
+	}
+
+	UFUNCTION(BlueprintCallable)
+	FSaveData GetSaveData() { return SaveData; }
+
+	UFUNCTION(BlueprintCallable)
 	FFormationInfo GetPlayerFormation() { return PlayerFormationData; }
 
 	UFUNCTION(BlueprintCallable)
 	TArray<FCharacterData> GetPlayerUnitData() { return PlayerUnitData; }
 
+	UFUNCTION(BlueprintCallable)
+	FFormationInfo GetDefenderFormation();
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FCharacterData> GetDefenderUnitData();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UWeaponComponent> Sword;
+
+	virtual void Init() override;
 };

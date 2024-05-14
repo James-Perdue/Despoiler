@@ -46,6 +46,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	UWeaponComponent* Weapon;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Animation")
+	UAnimInstance* AnimInstance;
+
 	UFUNCTION(BlueprintCallable)
 	void EquipWeapon(UWeaponComponent* NewWeapon);
 

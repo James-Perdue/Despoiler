@@ -27,13 +27,15 @@ void AGoalAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Health = MaxHealth;
+	
 	Weapon = NewObject<UWeaponComponent>(this, WeaponClass);
 	if (Weapon != nullptr)
 	{
 		Weapon->RegisterComponent();
-		Weapon->AttachToComponent(this->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("LHandSocket"));
+		Weapon->AttachToComponent(this->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("RHandSocket"));
 	}
 	CombatComponent->EquipWeapon(Weapon);
+	CombatComponent->AnimInstance = this->GetMesh()->GetAnimInstance();
 }
 
 // Called every frame
@@ -141,6 +143,7 @@ EActionStatus AGoalAICharacter::Target_Implementation()
 		}
 		case ESquadState::Attack:
 		case ESquadState::HoldPosition:
+		case ESquadState::Free:
 		{
 			if (Blackboard->OpposingTeam == nullptr)
 			{

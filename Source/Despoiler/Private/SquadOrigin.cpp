@@ -19,27 +19,39 @@ void ASquadOrigin::BeginPlay()
 	Super::BeginPlay();
 	
 	UDespoilerGameInstance* instance = Cast<UDespoilerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-
-	if (instance)
-	{
-		ASquad* spawnedSquad = nullptr;
-
-		FVector SpawnPoint = this->GetActorLocation();
-		FActorSpawnParameters spawnParameters;
-
-		spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-		const FTransform SpawnTransform = FTransform(GetActorRotation(), SpawnPoint);
-
-		spawnedSquad = GetWorld()->SpawnActorDeferred<ASquad>(SquadBlueprint, SpawnTransform);
-		if (instance->isSaved || instance->GetPlayerFormation().FormationWidth > 0 && instance->GetPlayerUnitData().Num() > 0)
-		{
-			spawnedSquad->SquadBlackboard->FormationInfo = instance->GetPlayerFormation();
-			spawnedSquad->SquadInitCharacterData = instance->GetPlayerUnitData();
-			spawnedSquad->SquadBlackboard->TeamAssignment = ETeam::Attacker;
-		}
-		spawnedSquad->FinishSpawning(SpawnTransform);
-		//spawnedSquad->SetActorLocation(this->GetActorLocation());
+	if (!instance) {
+		return;
 	}
+	ASquad* spawnedSquad = nullptr;
+
+	FVector SpawnPoint = this->GetActorLocation();
+	FActorSpawnParameters spawnParameters;
+
+	spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+	const FTransform SpawnTransform = FTransform(GetActorRotation(), SpawnPoint);
+	FFormationInfo formation;
+	TArray<FCharacterData> characterData;
+
+	if (TeamAssignment == ETeam::Attacker) {
+		formation = instance->GetPlayerFormation();
+		characterData = instance->GetPlayerUnitData();
+	} 
+	if (TeamAssignment == ETeam::Defender) {
+		formation = instance->GetDefenderFormation();
+		characterData = instance->GetDefenderUnitData();
+	}
+
+
+	spawnedSquad = GetWorld()->SpawnActorDeferred<ASquad>(SquadBlueprint, SpawnTransform);
+	if (instance->isSaved || formation.FormationWidth > 0 && characterData.Num() > 0)
+	{
+		spawnedSquad->SquadBlackboard->FormationInfo = formation;
+		spawnedSquad->SquadInitCharacterData = characterData;
+		spawnedSquad->SquadBlackboard->TeamAssignment = TeamAssignment;
+	}
+	spawnedSquad->FinishSpawning(SpawnTransform);
+	//spawnedSquad->SetActorLocation(this->GetActorLocation());
+	
 }
 
 // Called every frame

@@ -27,9 +27,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FCharacterData> PlayerUnitData;
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<EWeaponType, TSubclassOf<UWeaponComponent>> WeaponMap;*/
-
 	UPROPERTY(BlueprintAssignable)
 	FLoadStageDelegate LoadStageDelegate;
 

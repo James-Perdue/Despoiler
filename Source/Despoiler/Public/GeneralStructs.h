@@ -90,3 +90,33 @@ struct DESPOILER_API FCharacterData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawning)
 	int Count;
 };
+
+USTRUCT(BlueprintType)
+struct DESPOILER_API FSaveData
+{
+	GENERATED_USTRUCT_BODY()
+
+	// Primary resouce
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SaveData)
+	int Gold;
+
+	// How far in game, every stage has 3 levels
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SaveData)
+	int Stage;
+
+	// How far in a stage, 0 indexed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SaveData)
+	int Level;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SaveData)
+	int ArmorRank;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SaveData)
+	int WeaponRank;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SaveData)
+	TArray<FCharacterData> Army;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SaveData)
+	int MaxUnits;
+};

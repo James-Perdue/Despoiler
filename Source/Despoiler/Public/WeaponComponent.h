@@ -39,6 +39,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
 	USoundBase* BlockSound;
 
+	//TODO: Possibly put montages into a dict?
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")
+	UAnimMontage* BlockMontage;
+
 
 protected:
 	/*UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Combat")

@@ -20,6 +20,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Squad)
 	TSubclassOf<class ASquad> SquadBlueprint;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Squad)
+	ETeam TeamAssignment = ETeam::Attacker;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
